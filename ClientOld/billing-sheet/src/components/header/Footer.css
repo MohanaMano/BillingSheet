@@ -1,0 +1,32 @@
+
+.label {
+    height: 20px;
+    margin: 20px;
+    font-size: 17px;
+    font-family: "Times New Roman", Times, serif;
+  }
+  
+  .head {
+    margin: 30px 150px;
+    width: auto;
+  }
+  .submit-foot-clear {
+    width: 120px;
+    height: 30px;
+    border-radius: 8px;
+    background-color: white;
+    color: black;
+    float: right;
+    margin-left: 30px;
+  }
+  
+  .submit-foot {
+    width: 120px;
+    height: 30px;
+    border-radius: 8px;
+    background-color: rgb(50, 169, 205);
+    color: white;
+    float: right;
+    margin-left: 30px;
+  }
+  
