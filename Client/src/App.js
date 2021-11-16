@@ -32,71 +32,113 @@ function App() {
     },
     {
       title: "Total Price",
-     type: "currency",
+      type: "currency",
       currencySetting: { currencyCode: "INR", minimumFractionDigits: 1 },
       render: (rowData) => rowData.productprice * rowData.productquantity,
       field: "totalprice",
+      editable: false,
     },
   ];
   const getbillsList = async () => {
     const result = await axios("http://localhost:8080/getbill");
     let resultData = result.data || [];
-    let transformedResultData = resultData.map((item) => {
-      return {
-        ...item,
-        totalPrice: item.productprice * item.productquantity,
-      };
-    });
-    let tempTotalProductPrice = transformedResultData.reduce((acc, item) => {
+    let tempTotalProductPrice = resultData.reduce((acc, item) => {
       return acc + item.totalPrice;
     }, 0);
     setTotalProdPrice(tempTotalProductPrice);
-    setTableData(transformedResultData);
+    setTableData(resultData);
   };
 
   useEffect(() => {
     getbillsList();
   }, []);
 
+  const addItem = async (item, price, quantity ) => {
+    const result = await axios.post(
+      "http://localhost:8080/insertbill?productname=" +
+      item +
+        "&productprice=" +
+        price +
+        "&productquantity=" +
+        quantity
+    );
+    console.log(result.data);
+    setTableData((prevData) => [
+      ...prevData,
+      {
+        productname: item,
+        productprice: price,
+        productquantity: quantity,
+      },
+    ]);
+  };
+
+  const updateItem = async (id, item, price, quantity ) => {
+    const result = await axios.patch(
+      "http://localhost:8080/updatebill?productname=" +
+      item +
+        "&productprice=" +
+        price +
+        "&productquantity=" +
+        quantity +
+        "&id="+
+        id
+    );
+    console.log(result.data);
+    getbillsList();
+  };
+
+  const deleteItem = async (id) => {
+    const result = await axios.delete(
+      "http://localhost:8080/deletebill?id=" + id
+    );
+    console.log(result.data);
+    getbillsList();
+  };
+
   return (
     <div>
-      <h1>Material UI Example</h1>
+      <h1>Billing System</h1>
       <MaterialTable
         columns={columns}
         data={tableData}
         editable={{
           onRowAdd: (newRow) =>
             new Promise((resolve, reject) => {
-              setTableData([...tableData, newRow]);
+              console.log("New Roe = " + JSON.stringify(newRow));
+              var existingItemIndex = tableData.findIndex( item=> item.productname === newRow.productname);
+              if (existingItemIndex === -1) {
+                addItem(newRow.productname, newRow.productprice,  newRow.productquantity);
+                alert(newRow.productname + " Added");
+              } else {
+                var existingItem = tableData[existingItemIndex];
+                var productprice = Number(existingItem.productprice) + Number(newRow.productprice);
+                var productquantity = Number(existingItem.productquantity) + Number(newRow.productquantity);
+                updateItem(existingItem._id, newRow.productname, productprice,  productquantity);
+                alert("Item " + newRow.productname +" Updated");
+              }
+              // setTableData([...tableData, newRow]);
+              
               setTimeout(() => resolve(), 500);
             }),
 
           onRowUpdate: (newRow, oldRow) =>
             new Promise((resolve, reject) => {
-              const updatedData = [...tableData];
-              updatedData[oldRow.tableData.id] = newRow;
-              setTableData(updatedData);
-              console.log(newRow, oldRow);
+              console.log("Update New date = " + JSON.stringify(newRow));
+              console.log("Update old date = " + JSON.stringify(oldRow));
+              updateItem(oldRow._id, newRow.productname, newRow.productprice,  newRow.productquantity);
               setTimeout(() => resolve(), 500);
             }),
 
           onRowDelete: (selectedRow) =>
             new Promise((resolve, reject) => {
-              const updatedData = [...tableData];
-              updatedData.splice(selectedRow.tableData.id, 1);
-              setTableData(updatedData);
+              console.log("delete id = " + JSON.stringify(tableData[selectedRow.tableData.id]._id));
+              deleteItem(tableData[selectedRow.tableData.id]._id);
+              getbillsList();
               setTimeout(() => resolve(), 500);
             }),
         }}
-        actions={[
-          {
-            icon: "save",
-            tooltip: "Save User",
-            onClick: (event, rowData) => {
-              // Do save operation
-            },
-          },
-        ]}
+        
         title="Product Information"
         //by default sorting will be automatically enable. if we click any title it will sort accordingly.
         //options={{sorting:false}}
@@ -106,7 +148,7 @@ function App() {
         options={{
           search: false,
           paging: true,
-          pageSize: 2,
+          pageSize: 10,
           pageSizeOptions: [2, 4, 6, 8, 10, 20, 30, 40],
           paginationType: "stepped",
           exportButton: true,
