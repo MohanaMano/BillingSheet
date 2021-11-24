@@ -95,6 +95,28 @@ app.patch('/updatebill', (req, res) => {
   });
 });
 
+/* Update item to bills */
+app.post('/insertExpense', (req, res) => {
+  MongoClient.connect(url, function(err, db) {
+    if (err) throw err;
+    var dbo = db.db("billingsystem");
+    //FIXME: req.query.id
+    var query = {_id: new mongodb.ObjectID(req.query.id)}
+    var myobj = {$set:{ productname: req.query.productname, productprice:req.query.productprice,productquantity:req.query.productquantity }};
+    dbo.collection("bill").updateOne(query, myobj, function(err, result) {
+      if (err)
+      { 
+        res.json({status:"Fail"});
+      }
+
+      else{
+        res.json({status:"Success"});
+      }
+      db.close();
+    });
+  });
+});
+
 app.listen(port, () => {
   console.log(`app listening at http://localhost:${port}`)
 });
