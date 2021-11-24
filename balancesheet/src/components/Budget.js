@@ -30,6 +30,11 @@ function Budget() {
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalBalance, setTotalBalance] = useState(0);
 
+  const [txtBudget, setTxtBudget] = useState(0);
+
+  const [txtProduct, setTxtProduct] = useState("");
+  const [txtPrice, setTxtPrice] = useState(0);
+
   const columns = [
     { title: "ProductName", field: "productname" },
     //by default currency setting is dollar. we can change the currency using currencySetting,
@@ -71,7 +76,7 @@ function Budget() {
 
     var sumOfBudget = 0;
     for(var budgetVal of resultData) {
-      sumOfBudget += budgetVal.budget;
+      sumOfBudget += Number( budgetVal.budget);
     }
     setTotalBudget(sumOfBudget);
 
@@ -80,7 +85,7 @@ function Budget() {
     setTableData(ExpenseResultData);
     var sumOfExpense = 0;
     for(var expenseVal of ExpenseResultData) {
-      sumOfExpense += expenseVal.productprice;
+      sumOfExpense += Number(expenseVal.productprice);
     }
     setTotalExpense(sumOfExpense);
 
@@ -98,12 +103,24 @@ function Budget() {
 
 
   useEffect(() => {
-    //TODO:LOAD UI
+    getBudget();
   }, [updateUI]);
 
   useEffect(() => {
     getBudget();
   }, []);
+
+  const handleTextFieldChange = function(e) {
+    setTxtBudget(Number(e.target.value));
+}
+
+const handleTextFieldChangeProduct = function(e) {
+  setTxtProduct(e.target.value);
+}
+
+const handleTextFieldChangePrice = function(e) {
+  setTxtPrice(Number(e.target.value));
+}
 
   return (<div>
 
@@ -117,8 +134,14 @@ function Budget() {
             type="number"
             InputLabelProps={{
               shrink: true,
-            }} />
-          <Button variant="contained" style={{  width: '40%',margin: '10px' }}>Calculate</Button>
+            }} 
+            onChange={handleTextFieldChange}
+            />
+          <Button variant="contained" style={{  width: '40%',margin: '10px' }}
+          onClick={() => {
+            addBudget(txtBudget);
+          }}
+          >Calculate</Button>
         </FormControl>
    </Box></Grid>
    <Grid item xs={5}>
@@ -140,15 +163,21 @@ function Budget() {
             type="text"
             InputLabelProps={{
               shrink: true,
-            }} />
+            }} 
+            onChange={handleTextFieldChangeProduct}/>
             <FormLabel component="legend" style={{ padding: '10px' ,colour: 'red'}}>Please Enter Expense Amount</FormLabel>
           <TextField style={{ margin: '10px' }}
             id="outlined-required"
             type="number"
             InputLabelProps={{
               shrink: true,
-            }} />
-          <Button variant="contained" style={{ width: '40%', margin: '10px' }}>Add Expense</Button>
+            }} 
+            onChange={handleTextFieldChangePrice}/>
+          <Button variant="contained" style={{ width: '40%', margin: '10px' }}
+          onClick={() => {
+            addExpense(txtProduct,txtPrice);
+          }}
+          >Add Expense</Button>
         </FormControl>
          
    </Box>
@@ -184,7 +213,7 @@ function Budget() {
         options={{
           search: false,
           paging: true,
-          pageSize: 10,
+          pageSize: 4,
           pageSizeOptions: [2, 4, 6, 8, 10, 20, 30, 40],
           paginationType: "stepped",
           exportButton: true,
