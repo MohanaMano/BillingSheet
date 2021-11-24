@@ -71,7 +71,7 @@ function Budget() {
 
     var sumOfBudget = 0;
     for(var budgetVal of resultData) {
-      sumOfBudget += budgetVal;
+      sumOfBudget += budgetVal.budget;
     }
     setTotalBudget(sumOfBudget);
 
