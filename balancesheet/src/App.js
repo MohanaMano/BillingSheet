@@ -5,12 +5,7 @@ function App() {
   return (
     <div>
       <Budget></Budget>
-      {/* <FormControl margin="normal" required fullWidth>
- <InputLabel htmlFor="email">Email Address</InputLabel>
- <Input
 
- />
-</FormControl> */}
     </div>
   );
 }

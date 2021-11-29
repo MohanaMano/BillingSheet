@@ -74,14 +74,14 @@ app.delete('/deletebill', (req, res) => {
 });
 
 /* Update item to bills */
-app.patch('/updatebill', (req, res) => {
+app.patch('/updateexpense', (req, res) => {
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("billingsystem");
     //FIXME: req.query.id
     var query = {_id: new mongodb.ObjectID(req.query.id)}
-    var myobj = {$set:{ productname: req.query.productname, productprice:req.query.productprice,productquantity:req.query.productquantity }};
-    dbo.collection("bill").updateOne(query, myobj, function(err, result) {
+    var myobj = {$set:{ productname: req.query.productname, productprice:req.query.productprice,updatedOn:Date()}};
+    dbo.collection("expense").updateOne(query, myobj, function(err, result) {
       if (err)
       { 
         res.json({status:"Fail"});
@@ -100,7 +100,7 @@ app.post('/addbudget', (req, res) => {
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("billingsystem");
-    var myobj = { budget: req.query.budget};
+    var myobj = { budget: req.query.budget,updatedOn:Date()};
     dbo.collection("budget").insertOne(myobj, function(err, result) {
       if (err)
       { 
@@ -120,7 +120,7 @@ app.post('/addexpense', (req, res) => {
   MongoClient.connect(url, function(err, db) {
     if (err) throw err;
     var dbo = db.db("billingsystem");
-    var myobj = { productname: req.query.productname, productprice:req.query.productprice };
+    var myobj = { productname: req.query.productname, productprice:req.query.productprice,updatedOn:Date() };
     dbo.collection("expense").insertOne(myobj, function(err, result) {
       if (err)
       { 
