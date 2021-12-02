@@ -1,11 +1,12 @@
 // When we create a application we have to combine all the multiple reducer in this index.js file
 
-import {combineReducer} from 'redux';
-import {ProductReducer} from './ProductReducer.js';
+import {combineReducers} from 'redux';
+import {ProductReducer,selectedProductReducer} from './ProductReducer.js';
 
-const reducer=combineReducer(
+const reducer = combineReducers(
     {
-        allproducts:ProductReducer;
+        allProducts: ProductReducer,
+        product:selectedProductReducer,
     }
 )
 export default reducer;
