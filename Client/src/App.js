@@ -5,11 +5,6 @@ import "./App.css";
 
 function App() {
   const [tableData, setTableData] = useState([]);
-  const [totalProdPrice, setTotalProdPrice] = useState(0);
-  const [enteredProduct, setEnteredProduct] = useState("");
-  const [enteredPrice, setEnteredPrice] = useState();
-  const [enteredQuantity, setEnteredQuantity] = useState(0);
-  const [data, setData] = useState([]);
   const columns = [
     { title: "ProductName", field: "productname" },
     //by default currency setting is dollar. we can change the currency using currencySetting,
@@ -26,7 +21,7 @@ function App() {
     {
       title: "Quantity",
       field: "productquantity",
-      emptyValue: () => <h3>null</h3>,
+      emptyValue: () => <h3>NA</h3>,
       defaultSort: "asc",
       searchable: false,
     },
@@ -42,10 +37,6 @@ function App() {
   const getbillsList = async () => {
     const result = await axios("http://localhost:8080/getbill");
     let resultData = result.data || [];
-    let tempTotalProductPrice = resultData.reduce((acc, item) => {
-      return acc + item.totalPrice;
-    }, 0);
-    setTotalProdPrice(tempTotalProductPrice);
     setTableData(resultData);
   };
 
@@ -53,10 +44,10 @@ function App() {
     getbillsList();
   }, []);
 
-  const addItem = async (item, price, quantity ) => {
+  const addItem = async (item, price, quantity) => {
     const result = await axios.post(
       "http://localhost:8080/insertbill?productname=" +
-      item +
+        item +
         "&productprice=" +
         price +
         "&productquantity=" +
@@ -73,15 +64,15 @@ function App() {
     ]);
   };
 
-  const updateItem = async (id, item, price, quantity ) => {
+  const updateItem = async (id, item, price, quantity) => {
     const result = await axios.patch(
       "http://localhost:8080/updatebill?productname=" +
-      item +
+        item +
         "&productprice=" +
         price +
         "&productquantity=" +
         quantity +
-        "&id="+
+        "&id=" +
         id
     );
     console.log(result.data);
@@ -105,40 +96,60 @@ function App() {
         editable={{
           onRowAdd: (newRow) =>
             new Promise((resolve, reject) => {
-              console.log("New Roe = " + JSON.stringify(newRow));
-              var existingItemIndex = tableData.findIndex( item=> item.productname === newRow.productname);
+              var existingItemIndex = tableData.findIndex(
+                (item) => item.productname === newRow.productname
+              );
               if (existingItemIndex === -1) {
-                addItem(newRow.productname, newRow.productprice,  newRow.productquantity);
+                addItem(
+                  newRow.productname,
+                  newRow.productprice,
+                  newRow.productquantity
+                );
                 alert(newRow.productname + " Added");
               } else {
                 var existingItem = tableData[existingItemIndex];
-                var productprice = Number(existingItem.productprice) + Number(newRow.productprice);
-                var productquantity = Number(existingItem.productquantity) + Number(newRow.productquantity);
-                updateItem(existingItem._id, newRow.productname, productprice,  productquantity);
-                alert("Item " + newRow.productname +" Updated");
+                var productprice =
+                  Number(existingItem.productprice) +
+                  Number(newRow.productprice);
+                var productquantity =
+                  Number(existingItem.productquantity) +
+                  Number(newRow.productquantity);
+                updateItem(
+                  existingItem._id,
+                  newRow.productname,
+                  productprice,
+                  productquantity
+                );
+                alert("Item " + newRow.productname + " Updated");
               }
               // setTableData([...tableData, newRow]);
-              
+
               setTimeout(() => resolve(), 500);
             }),
 
           onRowUpdate: (newRow, oldRow) =>
             new Promise((resolve, reject) => {
-              console.log("Update New date = " + JSON.stringify(newRow));
-              console.log("Update old date = " + JSON.stringify(oldRow));
-              updateItem(oldRow._id, newRow.productname, newRow.productprice,  newRow.productquantity);
+             
+              updateItem(
+                oldRow._id,
+                newRow.productname,
+                newRow.productprice,
+                newRow.productquantity
+              );
               setTimeout(() => resolve(), 500);
             }),
 
-          onRowDelete: (selectedRow) =>
+          ondeRowDelete: (selectedRow) =>
             new Promise((resolve, reject) => {
-              console.log("delete id = " + JSON.stringify(tableData[selectedRow.tableData.id]._id));
+              console.log(
+                "delete id = " +
+                  JSON.stringify(tableData[selectedRow.tableData.id]._id)
+              );
               deleteItem(tableData[selectedRow.tableData.id]._id);
               getbillsList();
               setTimeout(() => resolve(), 500);
             }),
         }}
-        
         title="Product Information"
         //by default sorting will be automatically enable. if we click any title it will sort accordingly.
         //options={{sorting:false}}
