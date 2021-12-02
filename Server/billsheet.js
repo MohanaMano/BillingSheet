@@ -27,9 +27,6 @@ mongoose.connect(url,connectionParams)
  console.error(`Error connecting to the database. \n${err}`); 
 })
 
-app.get('/allitems', (req, res) => {
-  res.end('Hpaani!');
-});
 
  app.get('/getbill', (req, res) => {
   var id = req.query.id;
